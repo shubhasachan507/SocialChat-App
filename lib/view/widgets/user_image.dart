@@ -1,9 +1,30 @@
-import "package:flutter/material.dart";
+import "dart:io";
 
-class UserImage extends StatelessWidget {
+import "package:flutter/material.dart";
+import "package:socialchatapp/index.dart";
+import "package:socialchatapp/view/utility/utils.dart";
+
+class UserImage extends StatefulWidget {
   const UserImage({
     super.key,
   });
+
+  @override
+  State<UserImage> createState() => _UserImageState();
+}
+
+class _UserImageState extends State<UserImage> {
+  File? _image;
+
+  selectImage() async {
+    File? im = await chooseImage(context);
+
+    setState(() {
+      _image = im;
+    });
+
+    StorageMethods().storeProfileImage('profilepics', im!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -14,11 +35,15 @@ class UserImage extends StatelessWidget {
           width: 200,
           height: 200,
           decoration: BoxDecoration(
-            image: const DecorationImage(
-                image: NetworkImage(
-                  "https://t3.ftcdn.net/jpg/02/95/94/94/360_F_295949484_8BrlWkTrPXTYzgMn3UebDl1O13PcVNMU.jpg",
-                ),
-                fit: BoxFit.cover),
+            image: _image != null
+                ? DecorationImage(
+                    image: FileImage(File(_image!.path)), fit: BoxFit.cover)
+                : const DecorationImage(
+                    image: NetworkImage(
+                      "https://www.shutterstock.com/image-vector/user-icon-trendy-flat-style-260nw-418179865.jpg",
+                    ),
+                    scale: 7,
+                    fit: BoxFit.contain),
             shape: BoxShape.circle,
             border: Border.all(width: 10, color: Colors.purple.shade900),
           ),
@@ -27,7 +52,7 @@ class UserImage extends StatelessWidget {
           bottom: 20,
           left: 140,
           child: InkWell(
-            onTap: () {},
+            onTap: selectImage,
             child: Container(
               width: 40,
               height: 40,

@@ -34,6 +34,14 @@ chooseImage(BuildContext context) async {
   if (_file != null) {
     return File(_file.path);
   }
-
   print("No Image Selected");
+}
+
+showSnackbar(BuildContext context, String title) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    SnackBar(
+      backgroundColor: Colors.amber.shade600,
+      content: Text(title),
+    ),
+  );
 }

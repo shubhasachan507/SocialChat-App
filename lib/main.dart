@@ -18,8 +18,9 @@ class SocialChat extends StatelessWidget {
       routes: {
         '/login': (context) => LogInScreen(),
         '/signUp': (context) => SignUpScreen(),
+        '/userProfile': (context) => UserProfile(),
       },
-      home: UserProfile(),
+      home: SignUpScreen(),
     );
   }
 }

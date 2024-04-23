@@ -1,14 +1,43 @@
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:socialchatapp/index.dart";
+import "package:socialchatapp/view/utility/utils.dart";
 
-class LogInScreen extends StatelessWidget {
+class LogInScreen extends StatefulWidget {
   LogInScreen({
     super.key,
   });
 
+  @override
+  State<LogInScreen> createState() => _LogInScreenState();
+}
+
+class _LogInScreenState extends State<LogInScreen> {
   final _emailController = TextEditingController();
   final _paswordController = TextEditingController();
+  bool isLoggedIn = false;
+
+  logInUser() async {
+    setState(() {
+      isLoggedIn = false;
+    });
+    FocusScopeNode currentFocus =
+        FocusScope.of(context); //get current focus node
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+    await Authentication()
+        .logInUser(
+            email: _emailController.text, password: _paswordController.text)
+        .then((value) {
+      setState(() {
+        isLoggedIn = true;
+      });
+      showSnackbar(context, value);
+      _emailController.text = "";
+      _paswordController.text = "";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +87,9 @@ class LogInScreen extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 10),
                           child: TextButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Navigator.pushNamed(context, Routes.userProfile);
+                            },
                             child: Text(
                               "Forgot Password?",
                               style: TextStyle(color: Appcolors.myTeal),
@@ -68,18 +99,7 @@ class LogInScreen extends StatelessWidget {
                       ],
                     ),
                     InkWell(
-                      onTap: () async {
-                        FocusScopeNode currentFocus =
-                            FocusScope.of(context); //get current focus node
-                        if (!currentFocus.hasPrimaryFocus) {
-                          currentFocus.unfocus();
-                        }
-                        await Authentication()
-                            .logInUser(
-                                email: _emailController.text,
-                                password: _paswordController.text)
-                            .then((value) => print(value));
-                      },
+                      onTap: logInUser,
                       child: Container(
                         margin:
                             EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -88,14 +108,18 @@ class LogInScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(30),
                             color: Appcolors.myPurple),
-                        child: const Center(
-                          child: Text(
-                            "Sign In",
-                            style: TextStyle(
-                                fontSize: 22,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.white),
-                          ),
+                        child: Center(
+                          child: isLoggedIn
+                              ? const Text(
+                                  "Sign In",
+                                  style: TextStyle(
+                                      fontSize: 22,
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.white),
+                                )
+                              : const CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
                         ),
                       ),
                     ),

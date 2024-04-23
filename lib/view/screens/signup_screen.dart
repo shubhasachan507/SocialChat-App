@@ -1,15 +1,47 @@
 import "package:flutter/gestures.dart";
 import "package:flutter/material.dart";
 import "package:socialchatapp/index.dart";
+import "package:socialchatapp/view/utility/utils.dart";
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   SignUpScreen({
     super.key,
   });
 
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
   final _emailController = TextEditingController();
   final _paswordController = TextEditingController();
   final _userNameController = TextEditingController();
+  bool isSignUpDone = true;
+
+  _signUpUser() async {
+    setState(() {
+      isSignUpDone = false;
+    });
+    FocusScopeNode currentFocus =
+        FocusScope.of(context); //get current focus node
+    if (!currentFocus.hasPrimaryFocus) {
+      currentFocus.unfocus();
+    }
+    await Authentication()
+        .signUpUser(
+            email: _emailController.text,
+            password: _paswordController.text,
+            userName: _userNameController.text)
+        .then((value) {
+      showSnackbar(context, value);
+      setState(() {
+        isSignUpDone = true;
+      });
+      _emailController.text = "";
+      _paswordController.text = "";
+      _userNameController.text = "";
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +84,7 @@ class SignUpScreen extends StatelessWidget {
                       obscuretext: true),
                   SizedBox(height: 20),
                   InkWell(
-                    onTap: () async {
-                      await Authentication()
-                          .signUpUser(
-                              email: _emailController.text,
-                              password: _paswordController.text,
-                              userName: _userNameController.text)
-                          .then((value) => print(value));
-                    },
+                    onTap: _signUpUser,
                     child: Container(
                       margin:
                           EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -68,14 +93,16 @@ class SignUpScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(30),
                           color: Appcolors.myPurple),
-                      child: const Center(
-                        child: Text(
-                          "Sign Up",
-                          style: TextStyle(
-                              fontSize: 22,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white),
-                        ),
+                      child: Center(
+                        child: isSignUpDone
+                            ? Text(
+                                "Sign Up",
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.white),
+                              )
+                            : CircularProgressIndicator(color: Colors.white),
                       ),
                     ),
                   ),
